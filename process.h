@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <deque>
 
-enum class ProcessType {
-    REAL_TIME = 0,
-    USER      = 1
-};
+#include "types.h"
 
 enum class ProcessState {
     NEW,
@@ -15,40 +13,46 @@ enum class ProcessState {
     TERMINATED
 };
 
+
+
 struct Process {
+    // --- Identity --------------------------------------------
     int pid;
-    int priority;        // 0=real-time, 1,2,3=user priorities
-    int startTime;       // Initialization time
-    int cpuTime;         // Total CPU time needed
-    int remainingTime;   // Remaining CPU time
-    int maxWorkingSet;   // Max frames for this process
-    
-    // Resource requests
-    bool requestsPrinter;
-    bool requestsScanner;
-    bool requestsModem;
-    int  requestsSATA;   // 0, 1, or 2
-    
-    // Memory
-    std::vector<int> pageReferenceString;
-    std::vector<int> frames;            // Currently allocated frames
-    std::vector<int> pageLoadOrder;     // For LRU tracking
+    int priority;           ///< 0=real-time, 1/2/3=user level
+    int startTime;          ///< Arrival time (from processes.txt)
+    int cpuTime;            ///< Total CPU burst required
+    int remainingTime;      ///< CPU time still to execute
+
+    // --- Memory ----------------------------------------------
+    int maxWorkingSet;      ///< Max frames this process may use
+    std::vector<int> pageRefString;     ///< Sequence of page accesses
+    std::vector<int> allocatedFrames;   ///< Frames currently held
+    std::deque<int>  lruQueue;          ///< LRU order (front=oldest)
     int pageFaults;
-    // Aging (for user processes anti-starvation)
-    int waitingTime;
-    int agingCounter;
-    
-    ProcessType type;
+    int pageRefIndex;       ///< Next index in pageRefString
+
+    // --- I/O Resources (user processes only) -----------------
+    bool needsPrinter;      ///< Requests a printer
+    bool needsScanner;      ///< Requests the scanner
+    bool needsModem;        ///< Requests the modem
+    int  needsSATA;         ///< Number of SATA devices needed (0/1/2)
+
+    // --- Scheduling ------------------------------------------
     ProcessState state;
-    
-    // For multilevel feedback queue
-    int currentQueueLevel; // 1, 2, or 3 for user processes
-    int quantumUsed;       // How much quantum has been used
-    
-    Process() = default;
+    int queueLevel;         ///< Current user queue (1/2/3) or 0 for real-time
+    int waitingTicks;       ///< Ticks spent waiting (for aging)
+    int quantumUsed;        ///< Quantum consumed in current slice
+    int instructionsDone;   ///< Instructions printed so far
+
+    // ---------------------------------------------------------
     Process(int pid, int priority, int startTime, int cpuTime,
-            int maxWorkingSet, bool printer, bool scanner,
-            bool modem, int sata);
-            
-    bool isRealTime() const { return priority == 0; }
+            int maxWorkingSet,
+            bool needsPrinter, bool needsScanner,
+            bool needsModem, int needsSATA);
+
+    /// True if this is a real-time process (priority 0).
+    bool isRealTime() const noexcept { return priority == PRIORITY_REALTIME; }
+
+    /// True if the process has finished executing.
+    bool isDone() const noexcept { return remainingTime <= 0; }
 };
