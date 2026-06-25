@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <unordered_map>
 
 #include "types.h"
 
@@ -28,6 +29,7 @@ struct Process {
     std::vector<int> pageRefString;     ///< Sequence of page accesses
     std::vector<int> allocatedFrames;   ///< Frames currently held
     std::deque<int>  lruQueue;          ///< LRU order (front=oldest)
+    std::unordered_map<int, int> pageInFrame; ///< page# → frame#
     int pageFaults;
     int pageRefIndex;       ///< Next index in pageRefString
 
@@ -55,4 +57,8 @@ struct Process {
 
     /// True if the process has finished executing.
     bool isDone() const noexcept { return remainingTime <= 0; }
+
+    /// True if the process has been terminated.
+    bool isTerminated() const noexcept { return state == ProcessState::TERMINATED; }
 };
+

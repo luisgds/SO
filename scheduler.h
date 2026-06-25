@@ -22,6 +22,9 @@
 //   - Aging: if a user process waits AGING_THRESHOLD ticks it is promoted
 // ================================================================
 
+/// Compare two processes by their arrival times.
+bool compareArrival(Process* a, Process* b);
+
 class Scheduler {
 public:
     Scheduler() = default;
@@ -30,6 +33,7 @@ public:
 
     /// Add process to the arrival buffer (sorted by startTime).
     void addToArrivalQueue(Process* proc);
+
 
     /// Move processes with startTime <= time into scheduling queues.
     void dispatchArrivals(int time);
