@@ -6,15 +6,6 @@
 
 #include "types.h"
 
-enum class ProcessState {
-    NEW,
-    READY,
-    RUNNING,
-    BLOCKED,
-    TERMINATED
-};
-
-
 
 struct Process {
     // --- Identity --------------------------------------------
@@ -37,7 +28,7 @@ struct Process {
     bool needsPrinter;      ///< Requests a printer
     bool needsScanner;      ///< Requests the scanner
     bool needsModem;        ///< Requests the modem
-    int  needsSATA;         ///< Number of SATA devices needed (0/1/2)
+    bool needsSATA;         ///< Whether the process needs SATA devices (0/1/2)
 
     // --- Scheduling ------------------------------------------
     ProcessState state;
@@ -46,11 +37,15 @@ struct Process {
     int quantumUsed;        ///< Quantum consumed in current slice
     int instructionsDone;   ///< Instructions printed so far
 
+    // ------------- Flags de alocação (admissão) ---------------------
+    bool memAllocated;  // Já reservou seus frames na memória?
+    bool ioAllocated;   // Já reservou seus dispositivos de E/S?
+
     // ---------------------------------------------------------
     Process(int pid, int priority, int startTime, int cpuTime,
             int maxWorkingSet,
             bool needsPrinter, bool needsScanner,
-            bool needsModem, int needsSATA);
+            bool needsModem, bool needsSATA);
 
     /// True if this is a real-time process (priority 0).
     bool isRealTime() const noexcept { return priority == PRIORITY_REALTIME; }

@@ -3,7 +3,7 @@
 Process::Process(int pid, int priority, int startTime, int cpuTime,
                  int maxWorkingSet,
                  bool needsPrinter, bool needsScanner,
-                 bool needsModem, int needsSATA)
+                 bool needsModem, bool needsSATA)
     : pid(pid),
       priority(priority),
       startTime(startTime),
@@ -19,7 +19,9 @@ Process::Process(int pid, int priority, int startTime, int cpuTime,
       state(ProcessState::NEW),
       waitingTicks(0),
       quantumUsed(0),
-      instructionsDone(0)
+      instructionsDone(0),
+      memAllocated(false),
+      ioAllocated(false)
 {
-    queueLevel = isRealTime() ? 0 : PRIORITY_USER_1;
+    queueLevel = priority;
 }

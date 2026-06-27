@@ -69,7 +69,8 @@ public:
 
     /// True if arrival buffer AND all scheduling queues are empty.
     bool allEmpty() const;
-
+    bool schedulingQueuesEmpty() const;
+    
     std::size_t realTimeSize() const { return realTimeQueue_.size(); }
     std::size_t userQueueSize(int level) const {
         return userQueues_[level - 1].size();

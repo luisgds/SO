@@ -112,10 +112,18 @@ void Scheduler::applyAging() {
     userQueues_[0] = std::move(tmp);
 }
 
-bool Scheduler::allEmpty() const
-{
+bool Scheduler::allEmpty() const {
     if (!arrivalBuffer_.empty())  return false;
     if (!realTimeQueue_.empty())  return false;
+    for (const auto& q : userQueues_) {
+        if (!q.empty()) return false;
+    }
+    return true;
+}
+
+
+bool Scheduler::schedulingQueuesEmpty() const {
+    if (!realTimeQueue_.empty()) return false;
     for (const auto& q : userQueues_) {
         if (!q.empty()) return false;
     }
