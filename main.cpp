@@ -15,6 +15,7 @@
 
 // Completo : g++ -std=c++17 -Wall -Wextra -Wpedantic *.cpp -o dispatcher
 // Simples: g++ -std=c++17 *.cpp -o dispatcher
+// ./dispatcher processes.txt files.txt string.txt
 
 static void printDispatcherHeader(const Process& p) {
     std::cout << "dispatcher =>\n"
@@ -119,7 +120,6 @@ int main(int argc, char* argv[]) {
     MemoryManager mem;
     IOManager     io;
     FileSystem    fs(diskCfg.totalBlocks);
-
     for (const auto& [name, start, cnt] : diskCfg.existingFiles)
         fs.addExistingFile(name, start, cnt);
 
