@@ -29,11 +29,26 @@ static void printDispatcherHeader(const Process& p) {
               << " drives: "   << (p.needsSATA    ? 1 : 0) << '\n';
 }
 
+// ================================================================
+// Executa UMA "instrução" (um tick de CPU) do processo em execução:
+// consome uma referência de página (se houver) e imprime a
+// mensagem de progresso pedida no enunciado.
+// ================================================================
+
 static void executeTick(Process& proc, MemoryManager& mem) {
-    if (proc.pageRefIndex < (int)proc.pageRefString.size()) {
-        int page = proc.pageRefString[proc.pageRefIndex++];
-        mem.accessPage(proc, page);
+
+    const int totalRefs  = static_cast<int>(proc.pageRefString.size());
+    const int totalTicks = proc.cpuTime;
+    const int tickIndex  = proc.cpuTime - proc.remainingTime;  // 0-based
+
+    if (totalTicks > 0 && totalRefs > 0) {
+        const int startIdx = (tickIndex * totalRefs) / totalTicks;
+        const int endIdx   = ((tickIndex + 1) * totalRefs) / totalTicks;
+        for (int i = startIdx; i < endIdx && i < totalRefs; ++i) {
+            mem.accessPage(proc, proc.pageRefString[i]);
+        }
     }
+
     std::cout << "P" << proc.pid
               << " instruction " << ++proc.instructionsDone << '\n';
     --proc.remainingTime;
